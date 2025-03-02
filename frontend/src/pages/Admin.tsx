@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Alert,
   Box,
@@ -6,7 +6,6 @@ import {
   Card,
   CardContent,
   CircularProgress,
-  Divider,
   FormControl,
   Grid,
   InputLabel,
@@ -14,16 +13,15 @@ import {
   Paper,
   Select,
   Slider,
-  TextField,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 import {
   getSystemStats,
   getSystemConfig,
   updateSystemConfig,
   reindexDocuments,
-} from '../services/api';
-import { SystemStats, SystemConfig } from '../types';
+} from "../services/api";
+import { SystemStats, SystemConfig } from "../types";
 
 const Admin: React.FC = () => {
   const [stats, setStats] = useState<SystemStats | null>(null);
@@ -42,18 +40,18 @@ const Admin: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Load system stats and config in parallel
       const [statsResponse, configResponse] = await Promise.all([
         getSystemStats(),
         getSystemConfig(),
       ]);
-      
+
       setStats(statsResponse);
       setConfig(configResponse);
     } catch (error) {
-      console.error('Error loading admin data:', error);
-      setError('Failed to load system information. Please try again.');
+      console.error("Error loading admin data:", error);
+      setError("Failed to load system information. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -61,18 +59,18 @@ const Admin: React.FC = () => {
 
   const handleConfigUpdate = async () => {
     if (!config) return;
-    
+
     try {
       setUpdating(true);
       setError(null);
       setSuccess(null);
-      
+
       const updatedConfig = await updateSystemConfig(config);
       setConfig(updatedConfig);
-      setSuccess('System configuration updated successfully.');
+      setSuccess("System configuration updated successfully.");
     } catch (error) {
-      console.error('Error updating config:', error);
-      setError('Failed to update system configuration. Please try again.');
+      console.error("Error updating config:", error);
+      setError("Failed to update system configuration. Please try again.");
     } finally {
       setUpdating(false);
     }
@@ -83,12 +81,14 @@ const Admin: React.FC = () => {
       setReindexing(true);
       setError(null);
       setSuccess(null);
-      
+
       await reindexDocuments();
-      setSuccess('Reindexing started successfully. This process may take some time.');
+      setSuccess(
+        "Reindexing started successfully. This process may take some time."
+      );
     } catch (error) {
-      console.error('Error starting reindex:', error);
-      setError('Failed to start reindexing. Please try again.');
+      console.error("Error starting reindex:", error);
+      setError("Failed to start reindexing. Please try again.");
     } finally {
       setReindexing(false);
     }
@@ -96,7 +96,14 @@ const Admin: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "300px",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
@@ -107,19 +114,19 @@ const Admin: React.FC = () => {
       <Typography variant="h4" gutterBottom>
         System Administration
       </Typography>
-      
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
-      
+
       {success && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {success}
         </Alert>
       )}
-      
+
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card>
@@ -127,7 +134,7 @@ const Admin: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 System Statistics
               </Typography>
-              
+
               {stats && (
                 <Box>
                   <Grid container spacing={2}>
@@ -139,16 +146,14 @@ const Admin: React.FC = () => {
                         {stats.document_count}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={6}>
                       <Typography variant="body2" color="text.secondary">
                         Total Chunks
                       </Typography>
-                      <Typography variant="h5">
-                        {stats.total_chunks}
-                      </Typography>
+                      <Typography variant="h5">{stats.total_chunks}</Typography>
                     </Grid>
-                    
+
                     <Grid item xs={6}>
                       <Typography variant="body2" color="text.secondary">
                         Vector Store Size
@@ -157,7 +162,7 @@ const Admin: React.FC = () => {
                         {stats.vector_store_size}
                       </Typography>
                     </Grid>
-                    
+
                     <Grid item xs={6}>
                       <Typography variant="body2" color="text.secondary">
                         Avg. Query Time
@@ -169,7 +174,7 @@ const Admin: React.FC = () => {
                   </Grid>
                 </Box>
               )}
-              
+
               <Box sx={{ mt: 2 }}>
                 <Button
                   variant="outlined"
@@ -182,18 +187,19 @@ const Admin: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-          
+
           <Card sx={{ mt: 3 }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>
                 Maintenance
               </Typography>
-              
+
               <Typography variant="body2" paragraph color="text.secondary">
-                Reindexing will process all documents again with the current configuration.
-                This is useful after updating embeddings models or chunk settings.
+                Reindexing will process all documents again with the current
+                configuration. This is useful after updating embedding models or
+                chunk settings.
               </Typography>
-              
+
               <Button
                 variant="contained"
                 color="warning"
@@ -201,59 +207,42 @@ const Admin: React.FC = () => {
                 disabled={reindexing}
                 fullWidth
               >
-                {reindexing ? <CircularProgress size={24} /> : 'Reindex All Documents'}
+                {reindexing ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  "Reindex All Documents"
+                )}
               </Button>
             </CardContent>
           </Card>
         </Grid>
-        
+
         <Grid item xs={12} md={6}>
           <Paper sx={{ p: 3 }}>
             <Typography variant="h6" gutterBottom>
               System Configuration
             </Typography>
-            
+
             {config && (
               <Box>
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>LLM Provider</InputLabel>
-                  <Select
-                    value={config.llm_provider}
-                    label="LLM Provider"
-                    onChange={(e) => setConfig({ ...config, llm_provider: e.target.value })}
-                  >
-                    <MenuItem value="anthropic">Anthropic (Claude)</MenuItem>
-                    <MenuItem value="openai">OpenAI (GPT)</MenuItem>
-                    <MenuItem value="google">Google (Gemini)</MenuItem>
-                  </Select>
-                </FormControl>
-                
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Embedding Model</InputLabel>
                   <Select
                     value={config.embedding_model}
                     label="Embedding Model"
-                    onChange={(e) => setConfig({ ...config, embedding_model: e.target.value })}
+                    onChange={(e) =>
+                      setConfig({ ...config, embedding_model: e.target.value })
+                    }
                   >
-                    <MenuItem value="sentence-transformers/all-MiniLM-L6-v2">MiniLM-L6-v2 (Fast)</MenuItem>
-                    <MenuItem value="sentence-transformers/all-mpnet-base-v2">MPNet (Balanced)</MenuItem>
-                    <MenuItem value="text-embedding-ada-002">OpenAI Ada 002 (Accurate)</MenuItem>
+                    <MenuItem value="all-MiniLM-L6-v2">
+                      MiniLM-L6-v2 (Fast)
+                    </MenuItem>
+                    <MenuItem value="all-mpnet-base-v2">
+                      MPNet (Balanced)
+                    </MenuItem>
                   </Select>
                 </FormControl>
-                
-                <FormControl fullWidth margin="normal">
-                  <InputLabel>Vector DB Provider</InputLabel>
-                  <Select
-                    value={config.vector_db_provider}
-                    label="Vector DB Provider"
-                    onChange={(e) => setConfig({ ...config, vector_db_provider: e.target.value })}
-                  >
-                    <MenuItem value="chroma">Chroma</MenuItem>
-                    <MenuItem value="pinecone">Pinecone</MenuItem>
-                    <MenuItem value="weaviate">Weaviate</MenuItem>
-                  </Select>
-                </FormControl>
-                
+
                 <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
                   Chunk Size: {config.chunk_size}
                 </Typography>
@@ -262,10 +251,12 @@ const Admin: React.FC = () => {
                   min={250}
                   max={2000}
                   step={50}
-                  onChange={(_, value) => setConfig({ ...config, chunk_size: value as number })}
+                  onChange={(_, value) =>
+                    setConfig({ ...config, chunk_size: value as number })
+                  }
                   valueLabelDisplay="auto"
                 />
-                
+
                 <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
                   Chunk Overlap: {config.chunk_overlap}
                 </Typography>
@@ -274,10 +265,12 @@ const Admin: React.FC = () => {
                   min={0}
                   max={500}
                   step={10}
-                  onChange={(_, value) => setConfig({ ...config, chunk_overlap: value as number })}
+                  onChange={(_, value) =>
+                    setConfig({ ...config, chunk_overlap: value as number })
+                  }
                   valueLabelDisplay="auto"
                 />
-                
+
                 <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
                   Similarity Threshold: {config.similarity_threshold.toFixed(2)}
                 </Typography>
@@ -286,10 +279,15 @@ const Admin: React.FC = () => {
                   min={0.1}
                   max={0.9}
                   step={0.05}
-                  onChange={(_, value) => setConfig({ ...config, similarity_threshold: value as number })}
+                  onChange={(_, value) =>
+                    setConfig({
+                      ...config,
+                      similarity_threshold: value as number,
+                    })
+                  }
                   valueLabelDisplay="auto"
                 />
-                
+
                 <Button
                   variant="contained"
                   color="primary"
@@ -298,7 +296,11 @@ const Admin: React.FC = () => {
                   fullWidth
                   sx={{ mt: 3 }}
                 >
-                  {updating ? <CircularProgress size={24} /> : 'Save Configuration'}
+                  {updating ? (
+                    <CircularProgress size={24} />
+                  ) : (
+                    "Save Configuration"
+                  )}
                 </Button>
               </Box>
             )}

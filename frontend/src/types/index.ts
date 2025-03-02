@@ -62,18 +62,14 @@ export interface SystemStats {
 }
 
 export interface SystemConfig {
-  llm_provider: string;
   embedding_model: string;
-  vector_db_provider: string;
   chunk_size: number;
   chunk_overlap: number;
   similarity_threshold: number;
 }
 
 export interface SystemConfigUpdate {
-  llm_provider?: string;
   embedding_model?: string;
-  vector_db_provider?: string;
   chunk_size?: number;
   chunk_overlap?: number;
   similarity_threshold?: number;

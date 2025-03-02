@@ -17,22 +17,27 @@ theme:
 nav:
   - Home: index.md
   - User Guide:
-    - Getting Started: user-guide/getting-started.md
-    - Document Management: user-guide/document-management.md
-    - Querying Documents: user-guide/querying.md
-    - Administration: user-guide/administration.md
+      - Getting Started: user-guide/getting-started.md
+      - Document Management: user-guide/document-management.md
+      - Querying Documents: user-guide/querying.md
+      - Administration: user-guide/administration.md
   - API Reference:
-    - Overview: api/overview.md
-    - Document API: api/documents.md
-    - Query API: api/queries.md
-    - Admin API: api/admin.md
+      - Overview: api/overview.md
+      - Document API: api/documents.md
+      - Query API: api/queries.md
+      - Admin API: api/admin.md
   - Development:
-    - Architecture: dev/architecture.md
-    - Environment Setup: dev/environment.md
-    - Backend Development: dev/backend.md
-    - Frontend Development: dev/frontend.md
-    - Testing: dev/testing.md
-    - Deployment: dev/deployment.md
+      - Architecture: dev/architecture.md
+      - Environment Setup: dev/environment.md
+      - Backend Development: dev/backend.md
+      - Frontend Development: dev/frontend.md
+      - Testing: dev/testing.md
+      - Deployment: dev/deployment.md
+  - Technical Details:
+      - ChromaDB Integration: technical/chromadb.md
+      - Google Gemini Integration: technical/gemini.md
+      - Embedding Models: technical/embeddings.md
+      - Document Processing: technical/document-processing.md
 
 markdown_extensions:
   - pymdownx.highlight:

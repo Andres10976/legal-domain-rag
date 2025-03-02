@@ -104,7 +104,7 @@ async def list_documents():
                     "title": filename,  # In a real app, this would come from metadata
                     "document_type": "unknown",  # Placeholder
                     "jurisdiction": "unknown",  # Placeholder
-                    "date": None,
+                    "date": "",  # Empty string instead of None
                     "uploaded_at": datetime.fromtimestamp(os.path.getctime(file_path)).isoformat(),
                     "status": "processed",  # Placeholder
                     "size": os.path.getsize(file_path)
@@ -127,7 +127,7 @@ async def get_document(doc_id: str):
                 "title": os.path.basename(file_path),  # In a real app, this would come from metadata
                 "document_type": "unknown",  # Placeholder
                 "jurisdiction": "unknown",  # Placeholder
-                "date": None,
+                "date": "",  # Empty string instead of None
                 "uploaded_at": datetime.fromtimestamp(os.path.getctime(file_path)).isoformat(),
                 "status": "processed",  # Placeholder
                 "size": os.path.getsize(file_path)

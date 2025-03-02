@@ -2,6 +2,7 @@
 API routes for system administration tasks.
 """
 import os
+import json
 from typing import Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
@@ -24,17 +25,13 @@ class SystemStats(BaseModel):
     avg_query_time: float
 
 class SystemConfig(BaseModel):
-    llm_provider: str
     embedding_model: str
-    vector_db_provider: str
     chunk_size: int
     chunk_overlap: int
     similarity_threshold: float
 
 class SystemConfigUpdate(BaseModel):
-    llm_provider: str = None
     embedding_model: str = None
-    vector_db_provider: str = None
     chunk_size: int = None
     chunk_overlap: int = None
     similarity_threshold: float = None
@@ -64,9 +61,7 @@ async def get_system_config():
     Get current system configuration.
     """
     return {
-        "llm_provider": os.getenv("LLM_PROVIDER", "google"),
-        "embedding_model": os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
-        "vector_db_provider": os.getenv("VECTOR_DB_PROVIDER", "chroma"),
+        "embedding_model": os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
         "chunk_size": int(os.getenv("CHUNK_SIZE", "1000")),
         "chunk_overlap": int(os.getenv("CHUNK_OVERLAP", "200")),
         "similarity_threshold": float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
@@ -84,17 +79,9 @@ async def update_system_config(config_update: SystemConfigUpdate):
     env_file = find_dotenv()
     
     # Update only the values that are provided
-    if config_update.llm_provider is not None:
-        set_key(env_file, "LLM_PROVIDER", config_update.llm_provider)
-        current_config["llm_provider"] = config_update.llm_provider
-    
     if config_update.embedding_model is not None:
         set_key(env_file, "EMBEDDING_MODEL", config_update.embedding_model)
         current_config["embedding_model"] = config_update.embedding_model
-    
-    if config_update.vector_db_provider is not None:
-        set_key(env_file, "VECTOR_DB_PROVIDER", config_update.vector_db_provider)
-        current_config["vector_db_provider"] = config_update.vector_db_provider
     
     if config_update.chunk_size is not None:
         set_key(env_file, "CHUNK_SIZE", str(config_update.chunk_size))

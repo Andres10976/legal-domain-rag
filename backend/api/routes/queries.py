@@ -17,7 +17,7 @@ class QueryRequest(BaseModel):
     query: str
     filters: Optional[dict] = None
     chunk_count: Optional[int] = 5
-    similarity_threshold: Optional[float] = 0.7
+    similarity_threshold: Optional[float] = 0.3
 
 class Citation(BaseModel):
     document_id: str

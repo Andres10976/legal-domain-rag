@@ -119,7 +119,7 @@ def retrieve_relevant_chunks(
     query: str, 
     filters: Optional[Dict] = None, 
     top_k: int = 5, 
-    threshold: float = 0.7
+    threshold: float = 0.3
 ) -> List[Dict]:
     """
     Retrieve relevant document chunks based on query and filters.

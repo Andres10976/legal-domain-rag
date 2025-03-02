@@ -64,7 +64,7 @@ async def get_system_config():
         "embedding_model": os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
         "chunk_size": int(os.getenv("CHUNK_SIZE", "1000")),
         "chunk_overlap": int(os.getenv("CHUNK_OVERLAP", "200")),
-        "similarity_threshold": float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
+        "similarity_threshold": float(os.getenv("SIMILARITY_THRESHOLD", "0.3"))
     }
 
 @router.post("/admin/config", response_model=SystemConfig)

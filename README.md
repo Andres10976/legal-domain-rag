@@ -149,7 +149,7 @@ Key configuration options in the `.env` file:
 - `EMBEDDING_MODEL`: The embedding model to use (default: all-MiniLM-L6-v2)
 - `CHUNK_SIZE`: Size of document chunks (default: 1000)
 - `CHUNK_OVERLAP`: Overlap between chunks (default: 200)
-- `SIMILARITY_THRESHOLD`: Minimum similarity for retrieval (default: 0.7)
+- `SIMILARITY_THRESHOLD`: Minimum similarity for retrieval (default: 0.3)
 
 ## License
 

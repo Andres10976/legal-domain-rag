@@ -95,7 +95,7 @@ def query_documents(
     query_text: str,
     filters: Optional[Dict] = None,
     top_k: int = 5,
-    threshold: float = 0.7
+    threshold: float = 0.3
 ) -> List[Dict]:
     """
     Query the vector database for relevant document chunks.

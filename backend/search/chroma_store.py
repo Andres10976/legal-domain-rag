@@ -83,7 +83,7 @@ def query_documents(
     query_text: str,
     filters: Optional[Dict] = None,
     top_k: int = 5,
-    threshold: float = 0.7
+    threshold: float = 0.3
 ) -> List[Dict]:
     """
     Query the vector database for relevant document chunks.
@@ -111,14 +111,14 @@ def query_documents(
         n_results=top_k * 2,  # Get more results than needed for post-filtering
         where=where_clause if where_clause else None
     )
-    
+
     # Format results
     chunks = []
     for i in range(len(results["ids"][0])):
         # Calculate normalized similarity score
         distance = results["distances"][0][i] if "distances" in results else 0.5
         # For distance-based similarity, convert to similarity score (1 - normalized distance)
-        similarity_score = 1.0 - (distance / 2.0)  # Normalize to 0-1 range
+        similarity_score = 1.0 / (1.0 + distance)  # Always between 0 and 1
         
         # Only include results above threshold
         if similarity_score >= threshold:
@@ -130,7 +130,6 @@ def query_documents(
                 "score": similarity_score
             })
     
-    # Sort by score and limit to top_k
     chunks.sort(key=lambda x: x["score"], reverse=True)
     return chunks[:top_k]
 

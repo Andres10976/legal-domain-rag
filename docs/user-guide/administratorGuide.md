@@ -82,7 +82,7 @@ EMBEDDING_MODEL=all-MiniLM-L6-v2
 # Document Processing Configuration
 CHUNK_SIZE=1000
 CHUNK_OVERLAP=200
-SIMILARITY_THRESHOLD=0.7
+SIMILARITY_THRESHOLD=0.3
 
 # Server Configuration
 HOST=0.0.0.0
@@ -105,4 +105,4 @@ Changes to this file require a server restart to take effect.
 - **Embedding Model**: For large document collections, use the faster MiniLM-L6-v2 model
 - **Chunk Size**: 1000 characters works well for most legal documents
 - **Chunk Overlap**: An overlap of 200 characters helps maintain context between chunks
-- **Similarity Threshold**: A threshold of 0.7 provides a good balance between precision and recall
+- **Similarity Threshold**: A threshold of 0.3 provides a good balance between precision and recall

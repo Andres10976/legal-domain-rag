@@ -98,7 +98,7 @@ def test_query_documents(
         "query": "What is in the contract?",
         "filters": {"document_type": "contract"},
         "chunk_count": 3,
-        "similarity_threshold": 0.7
+        "similarity_threshold": 0.3
     }
     
     response = client.post("/api/query", json=query_data)
@@ -139,7 +139,7 @@ def test_get_system_config(mock_get_config, client):
         "vector_db_provider": "chroma",
         "chunk_size": 1000,
         "chunk_overlap": 200,
-        "similarity_threshold": 0.7
+        "similarity_threshold": 0.3
     }
     
     response = client.get("/api/admin/config")
@@ -151,4 +151,4 @@ def test_get_system_config(mock_get_config, client):
     assert config["vector_db_provider"] == "chroma"
     assert config["chunk_size"] == 1000
     assert config["chunk_overlap"] == 200
-    assert config["similarity_threshold"] == 0.7
+    assert config["similarity_threshold"] == 0.3

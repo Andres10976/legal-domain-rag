@@ -420,7 +420,7 @@
           },
           "similarity_threshold": {
             "type": "number",
-            "default": 0.7
+            "default": 0.3
           }
         },
         "required": ["query"]
@@ -444,7 +444,13 @@
             "type": "number"
           }
         },
-        "required": ["document_id", "document_title", "chunk_id", "text", "relevance_score"]
+        "required": [
+          "document_id",
+          "document_title",
+          "chunk_id",
+          "text",
+          "relevance_score"
+        ]
       },
       "QueryResponse": {
         "type": "object",
@@ -510,7 +516,12 @@
             "type": "number"
           }
         },
-        "required": ["document_count", "total_chunks", "vector_store_size", "avg_query_time"]
+        "required": [
+          "document_count",
+          "total_chunks",
+          "vector_store_size",
+          "avg_query_time"
+        ]
       },
       "SystemConfig": {
         "type": "object",
@@ -534,7 +545,14 @@
             "type": "number"
           }
         },
-        "required": ["llm_provider", "embedding_model", "vector_db_provider", "chunk_size", "chunk_overlap", "similarity_threshold"]
+        "required": [
+          "llm_provider",
+          "embedding_model",
+          "vector_db_provider",
+          "chunk_size",
+          "chunk_overlap",
+          "similarity_threshold"
+        ]
       },
       "SystemConfigUpdate": {
         "type": "object",

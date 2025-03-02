@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -22,12 +22,11 @@ import {
   TableRow,
   TextField,
   Typography,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import { getDocuments, uploadDocument, deleteDocument } from '../services/api';
-import { DocumentMetadata } from '../types';
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { getDocuments, uploadDocument, deleteDocument } from "../services/api";
+import { DocumentMetadata } from "../types";
 
 const Documents: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -35,10 +34,10 @@ const Documents: React.FC = () => {
   const [uploading, setUploading] = useState<boolean>(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
   const [documentToDelete, setDocumentToDelete] = useState<string | null>(null);
-  const [documentTitle, setDocumentTitle] = useState<string>('');
-  const [documentType, setDocumentType] = useState<string>('');
-  const [jurisdiction, setJurisdiction] = useState<string>('');
-  const [documentDate, setDocumentDate] = useState<string>('');
+  const [documentTitle, setDocumentTitle] = useState<string>("");
+  const [documentType, setDocumentType] = useState<string>("");
+  const [jurisdiction, setJurisdiction] = useState<string>("");
+  const [documentDate, setDocumentDate] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,8 +51,8 @@ const Documents: React.FC = () => {
       const response = await getDocuments();
       setDocuments(response.documents);
     } catch (error) {
-      console.error('Error loading documents:', error);
-      setError('Failed to load documents. Please try again later.');
+      console.error("Error loading documents:", error);
+      setError("Failed to load documents. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -71,7 +70,7 @@ const Documents: React.FC = () => {
 
   const handleUpload = async () => {
     if (!selectedFile) {
-      setError('Please select a file to upload.');
+      setError("Please select a file to upload.");
       return;
     }
 
@@ -80,38 +79,38 @@ const Documents: React.FC = () => {
       setError(null);
 
       const formData = new FormData();
-      formData.append('file', selectedFile);
-      
+      formData.append("file", selectedFile);
+
       if (documentTitle) {
-        formData.append('title', documentTitle);
+        formData.append("title", documentTitle);
       }
-      
+
       if (documentType) {
-        formData.append('document_type', documentType);
+        formData.append("document_type", documentType);
       }
-      
+
       if (jurisdiction) {
-        formData.append('jurisdiction', jurisdiction);
+        formData.append("jurisdiction", jurisdiction);
       }
-      
+
       if (documentDate) {
-        formData.append('date', documentDate);
+        formData.append("date", documentDate);
       }
 
       await uploadDocument(formData);
-      
+
       // Reset form
       setSelectedFile(null);
-      setDocumentTitle('');
-      setDocumentType('');
-      setJurisdiction('');
-      setDocumentDate('');
-      
+      setDocumentTitle("");
+      setDocumentType("");
+      setJurisdiction("");
+      setDocumentDate("");
+
       // Reload document list
       loadDocuments();
     } catch (error) {
-      console.error('Error uploading document:', error);
-      setError('Failed to upload document. Please try again.');
+      console.error("Error uploading document:", error);
+      setError("Failed to upload document. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -134,8 +133,8 @@ const Documents: React.FC = () => {
       await deleteDocument(documentToDelete);
       setDocuments((prev) => prev.filter((doc) => doc.id !== documentToDelete));
     } catch (error) {
-      console.error('Error deleting document:', error);
-      setError('Failed to delete document. Please try again.');
+      console.error("Error deleting document:", error);
+      setError("Failed to delete document. Please try again.");
     } finally {
       setDeleteConfirmOpen(false);
       setDocumentToDelete(null);
@@ -143,11 +142,11 @@ const Documents: React.FC = () => {
   };
 
   const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   return (
@@ -157,7 +156,14 @@ const Documents: React.FC = () => {
       </Typography>
 
       {error && (
-        <Paper sx={{ p: 2, mb: 2, bgcolor: 'error.light', color: 'error.contrastText' }}>
+        <Paper
+          sx={{
+            p: 2,
+            mb: 2,
+            bgcolor: "error.light",
+            color: "error.contrastText",
+          }}
+        >
           <Typography>{error}</Typography>
         </Paper>
       )}
@@ -169,7 +175,7 @@ const Documents: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Upload Document
               </Typography>
-              
+
               <Box sx={{ mb: 2 }}>
                 <Button
                   variant="outlined"
@@ -187,11 +193,12 @@ const Documents: React.FC = () => {
                 </Button>
                 {selectedFile && (
                   <Typography variant="body2" sx={{ mt: 1 }}>
-                    Selected: {selectedFile.name} ({formatFileSize(selectedFile.size)})
+                    Selected: {selectedFile.name} (
+                    {formatFileSize(selectedFile.size)})
                   </Typography>
                 )}
               </Box>
-              
+
               <TextField
                 label="Document Title"
                 value={documentTitle}
@@ -199,7 +206,7 @@ const Documents: React.FC = () => {
                 fullWidth
                 margin="normal"
               />
-              
+
               <TextField
                 label="Document Type"
                 value={documentType}
@@ -208,7 +215,7 @@ const Documents: React.FC = () => {
                 margin="normal"
                 placeholder="Contract, Case Law, Statute, etc."
               />
-              
+
               <TextField
                 label="Jurisdiction"
                 value={jurisdiction}
@@ -217,7 +224,7 @@ const Documents: React.FC = () => {
                 margin="normal"
                 placeholder="Federal, California, New York, etc."
               />
-              
+
               <TextField
                 label="Document Date"
                 type="date"
@@ -229,7 +236,7 @@ const Documents: React.FC = () => {
                   shrink: true,
                 }}
               />
-              
+
               <Button
                 variant="contained"
                 color="primary"
@@ -238,7 +245,7 @@ const Documents: React.FC = () => {
                 fullWidth
                 sx={{ mt: 2 }}
               >
-                {uploading ? <CircularProgress size={24} /> : 'Upload Document'}
+                {uploading ? <CircularProgress size={24} /> : "Upload Document"}
               </Button>
             </CardContent>
           </Card>
@@ -273,28 +280,22 @@ const Documents: React.FC = () => {
                   documents.map((doc) => (
                     <TableRow key={doc.id}>
                       <TableCell>{doc.title || doc.filename}</TableCell>
-                      <TableCell>{doc.document_type || 'Unknown'}</TableCell>
+                      <TableCell>{doc.document_type || "Unknown"}</TableCell>
                       <TableCell>{formatFileSize(doc.size)}</TableCell>
                       <TableCell>
                         <Chip
                           label={doc.status}
                           color={
-                            doc.status === 'processed'
-                              ? 'success'
-                              : doc.status === 'processing'
-                              ? 'warning'
-                              : 'error'
+                            doc.status === "processed"
+                              ? "success"
+                              : doc.status === "processing"
+                              ? "warning"
+                              : "error"
                           }
                           size="small"
                         />
                       </TableCell>
                       <TableCell>
-                        <IconButton
-                          aria-label="view"
-                          onClick={() => window.open(`/documents/${doc.id}`, '_blank')}
-                        >
-                          <VisibilityIcon />
-                        </IconButton>
                         <IconButton
                           aria-label="delete"
                           onClick={() => handleDeleteConfirm(doc.id)}
@@ -311,14 +312,12 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
 
-      <Dialog
-        open={deleteConfirmOpen}
-        onClose={handleDeleteCancel}
-      >
+      <Dialog open={deleteConfirmOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this document? This action cannot be undone.
+            Are you sure you want to delete this document? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

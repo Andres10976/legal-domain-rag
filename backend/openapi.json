@@ -1,0 +1,579 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Legal Domain RAG System API",
+    "description": "API for the Legal Domain Retrieval-Augmented Generation System",
+    "version": "0.1.0",
+    "contact": {
+      "name": "Developer",
+      "email": "developer@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Check if the API is running",
+        "operationId": "health_check",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "healthy"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/upload": {
+      "post": {
+        "summary": "Upload Document",
+        "description": "Upload a legal document for processing and indexing",
+        "operationId": "upload_document",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "document_type": {
+                    "type": "string"
+                  },
+                  "jurisdiction": {
+                    "type": "string"
+                  },
+                  "date": {
+                    "type": "string",
+                    "format": "date"
+                  }
+                },
+                "required": ["file"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents": {
+      "get": {
+        "summary": "List Documents",
+        "description": "List all uploaded documents with their metadata and processing status",
+        "operationId": "list_documents",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/documents/{doc_id}": {
+      "get": {
+        "summary": "Get Document",
+        "description": "Get metadata for a specific document",
+        "operationId": "get_document",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentMetadata"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Document Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Document",
+        "description": "Delete a document and its associated data",
+        "operationId": "delete_document",
+        "parameters": [
+          {
+            "name": "doc_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Document Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/query": {
+      "post": {
+        "summary": "Query Documents",
+        "description": "Process a natural language query against the document corpus",
+        "operationId": "query_documents",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Processing Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/history": {
+      "get": {
+        "summary": "Get Query History",
+        "description": "Retrieve conversation history for the current session",
+        "operationId": "get_history",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationHistory"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/stats": {
+      "get": {
+        "summary": "Get System Statistics",
+        "description": "Get system statistics including document count, vector store size, etc.",
+        "operationId": "get_system_stats",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/config": {
+      "get": {
+        "summary": "Get System Configuration",
+        "description": "Get current system configuration",
+        "operationId": "get_system_config",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemConfig"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Update System Configuration",
+        "description": "Update system configuration",
+        "operationId": "update_system_config",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemConfigUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemConfig"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/reindex": {
+      "post": {
+        "summary": "Reindex Documents",
+        "description": "Trigger reindexing of all documents",
+        "operationId": "reindex_documents",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Reindexing started"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DocumentMetadata": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "document_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "jurisdiction": {
+            "type": "string",
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "uploaded_at": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["processing", "processed", "error"]
+          },
+          "size": {
+            "type": "integer"
+          }
+        },
+        "required": ["id", "filename", "uploaded_at", "status", "size"]
+      },
+      "DocumentList": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DocumentMetadata"
+            }
+          }
+        }
+      },
+      "DocumentResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "message"]
+      },
+      "QueryRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "filters": {
+            "type": "object",
+            "nullable": true
+          },
+          "chunk_count": {
+            "type": "integer",
+            "default": 5
+          },
+          "similarity_threshold": {
+            "type": "number",
+            "default": 0.7
+          }
+        },
+        "required": ["query"]
+      },
+      "Citation": {
+        "type": "object",
+        "properties": {
+          "document_id": {
+            "type": "string"
+          },
+          "document_title": {
+            "type": "string"
+          },
+          "chunk_id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "relevance_score": {
+            "type": "number"
+          }
+        },
+        "required": ["document_id", "document_title", "chunk_id", "text", "relevance_score"]
+      },
+      "QueryResponse": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            }
+          },
+          "confidence_score": {
+            "type": "number"
+          }
+        },
+        "required": ["query", "response", "citations", "confidence_score"]
+      },
+      "HistoryItem": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string"
+          },
+          "response": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "required": ["query", "response", "timestamp"]
+      },
+      "ConversationHistory": {
+        "type": "object",
+        "properties": {
+          "history": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoryItem"
+            }
+          }
+        },
+        "required": ["history"]
+      },
+      "SystemStats": {
+        "type": "object",
+        "properties": {
+          "document_count": {
+            "type": "integer"
+          },
+          "total_chunks": {
+            "type": "integer"
+          },
+          "vector_store_size": {
+            "type": "string"
+          },
+          "avg_query_time": {
+            "type": "number"
+          }
+        },
+        "required": ["document_count", "total_chunks", "vector_store_size", "avg_query_time"]
+      },
+      "SystemConfig": {
+        "type": "object",
+        "properties": {
+          "llm_provider": {
+            "type": "string"
+          },
+          "embedding_model": {
+            "type": "string"
+          },
+          "vector_db_provider": {
+            "type": "string"
+          },
+          "chunk_size": {
+            "type": "integer"
+          },
+          "chunk_overlap": {
+            "type": "integer"
+          },
+          "similarity_threshold": {
+            "type": "number"
+          }
+        },
+        "required": ["llm_provider", "embedding_model", "vector_db_provider", "chunk_size", "chunk_overlap", "similarity_threshold"]
+      },
+      "SystemConfigUpdate": {
+        "type": "object",
+        "properties": {
+          "llm_provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "embedding_model": {
+            "type": "string",
+            "nullable": true
+          },
+          "vector_db_provider": {
+            "type": "string",
+            "nullable": true
+          },
+          "chunk_size": {
+            "type": "integer",
+            "nullable": true
+          },
+          "chunk_overlap": {
+            "type": "integer",
+            "nullable": true
+          },
+          "similarity_threshold": {
+            "type": "number",
+            "nullable": true
+          }
+        }
+      },
+      "HTTPError": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": ["detail"]
+      }
+    }
+  }
+}

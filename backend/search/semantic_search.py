@@ -4,7 +4,6 @@ Semantic search module.
 Handles the conversion of queries to embeddings and retrieval of relevant documents.
 """
 import os
-import json
 from typing import List, Dict, Any, Optional
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -15,6 +14,8 @@ from search.chroma_store import query_documents as chroma_query
 
 # Load environment variables
 load_dotenv()
+
+CURRENT_THRESHOLD = float(os.getenv("SIMILARITY_THRESHOLD", "0.3"))
 
 # Initialize embedding model
 MODEL_NAME = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
@@ -119,7 +120,7 @@ def retrieve_relevant_chunks(
     query: str, 
     filters: Optional[Dict] = None, 
     top_k: int = 5, 
-    threshold: float = 0.3
+    threshold: float = None
 ) -> List[Dict]:
     """
     Retrieve relevant document chunks based on query and filters.
@@ -134,12 +135,16 @@ def retrieve_relevant_chunks(
         List of relevant chunks with similarity scores
     """
     try:
+        # Use provided threshold or get from environment
+        if threshold is None:
+            threshold = float(os.getenv("SIMILARITY_THRESHOLD", "0.3"))
+            
         # Use ChromaDB to retrieve relevant chunks
         results = chroma_query(
             query_text=query,
             filters=filters,
             top_k=top_k,
-            threshold=threshold
+            threshold=threshold  # Make sure this is properly passed
         )
         
         return results

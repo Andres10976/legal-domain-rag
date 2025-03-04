@@ -7,6 +7,7 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from pydantic import BaseModel
 from dotenv import load_dotenv, set_key, find_dotenv
+from sentence_transformers import SentenceTransformer
 
 # Import services
 from search.chroma_store import get_collection_stats, reset_collection
@@ -80,20 +81,48 @@ async def update_system_config(config_update: SystemConfigUpdate):
     
     # Update only the values that are provided
     if config_update.embedding_model is not None:
+        # Store the old model name for comparison
+        old_model_name = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+        
+        # Update the environment variable
         set_key(env_file, "EMBEDDING_MODEL", config_update.embedding_model)
         current_config["embedding_model"] = config_update.embedding_model
+        
+        # Also update the global variable in the module
+        import search.semantic_search
+        search.semantic_search.MODEL_NAME = config_update.embedding_model
+        
+        # Reinitialize the embedding model if the model name has changed
+        if old_model_name != config_update.embedding_model:
+            try:
+                model_path = config_update.embedding_model.split('/')[-1] if '/' in config_update.embedding_model else config_update.embedding_model
+                search.semantic_search.embedding_model = SentenceTransformer(model_path)
+                print(f"Reinitialized embedding model: {model_path}")
+            except Exception as e:
+                print(f"Error reinitializing embedding model: {str(e)}")
     
     if config_update.chunk_size is not None:
         set_key(env_file, "CHUNK_SIZE", str(config_update.chunk_size))
         current_config["chunk_size"] = config_update.chunk_size
+        # Update the value in os.environ so it's available to other modules
+        os.environ["CHUNK_SIZE"] = str(config_update.chunk_size)
     
     if config_update.chunk_overlap is not None:
         set_key(env_file, "CHUNK_OVERLAP", str(config_update.chunk_overlap))
         current_config["chunk_overlap"] = config_update.chunk_overlap
+        # Update the value in os.environ so it's available to other modules
+        os.environ["CHUNK_OVERLAP"] = str(config_update.chunk_overlap)
     
     if config_update.similarity_threshold is not None:
         set_key(env_file, "SIMILARITY_THRESHOLD", str(config_update.similarity_threshold))
         current_config["similarity_threshold"] = config_update.similarity_threshold
+        # Update the value in os.environ so it's available to other modules
+        os.environ["SIMILARITY_THRESHOLD"] = str(config_update.similarity_threshold)
+    
+    try:
+        await apply_settings()
+    except Exception as e:
+        print(f"Warning: Failed to apply settings: {str(e)}")
     
     return current_config
 
@@ -129,3 +158,33 @@ async def reindex_documents(background_tasks: BackgroundTasks):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error reindexing documents: {str(e)}")
+    
+@router.post("/admin/apply-settings")
+async def apply_settings():
+    """
+    Apply current settings to the running application without restart.
+    This is useful after updating configuration values.
+    """
+    try:
+        # Reload environment variables
+        load_dotenv(override=True)
+        
+        # Update semantic search module
+        import search.semantic_search
+        
+        # Get the current values from environment
+        embedding_model = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+        threshold = float(os.getenv("SIMILARITY_THRESHOLD", "0.3"))
+        
+        # Reinitialize with current settings
+        model_path = embedding_model.split('/')[-1] if '/' in embedding_model else embedding_model
+        search.semantic_search.embedding_model = SentenceTransformer(model_path)
+        search.semantic_search.MODEL_NAME = embedding_model
+        
+        # Ensure the module has the latest threshold value
+        # This might require adding a global variable in semantic_search.py
+        search.semantic_search.DEFAULT_THRESHOLD = threshold
+        
+        return {"message": "Settings applied successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error applying settings: {str(e)}")

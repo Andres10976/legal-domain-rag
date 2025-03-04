@@ -25,8 +25,11 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { getDocuments, uploadDocument, deleteDocument } from "../services/api";
 import { DocumentMetadata } from "../types";
+import DocumentViewer from "../components/DocumentViewer";
 
 const Documents: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentMetadata[]>([]);
@@ -40,6 +43,10 @@ const Documents: React.FC = () => {
   const [documentDate, setDocumentDate] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState<boolean>(false);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     loadDocuments();
@@ -106,6 +113,14 @@ const Documents: React.FC = () => {
       setJurisdiction("");
       setDocumentDate("");
 
+      // Reset file input
+      const fileInput = document.getElementById(
+        "document-file-input"
+      ) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
       // Reload document list
       loadDocuments();
     } catch (error) {
@@ -141,6 +156,11 @@ const Documents: React.FC = () => {
     }
   };
 
+  const handleViewDocument = (id: string) => {
+    setSelectedDocumentId(id);
+    setViewDialogOpen(true);
+  };
+
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -151,15 +171,30 @@ const Documents: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant="h4" gutterBottom>
-        Document Management
-      </Typography>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4">Document Management</Typography>
+        <Button
+          startIcon={<RefreshIcon />}
+          variant="outlined"
+          onClick={loadDocuments}
+          disabled={loading}
+        >
+          Refresh
+        </Button>
+      </Box>
 
       {error && (
         <Paper
           sx={{
             p: 2,
-            mb: 2,
+            mb: 3,
             bgcolor: "error.light",
             color: "error.contrastText",
           }}
@@ -187,6 +222,7 @@ const Documents: React.FC = () => {
                   <input
                     type="file"
                     hidden
+                    id="document-file-input"
                     accept=".pdf,.docx,.txt"
                     onChange={handleFileChange}
                   />
@@ -296,12 +332,23 @@ const Documents: React.FC = () => {
                         />
                       </TableCell>
                       <TableCell>
-                        <IconButton
-                          aria-label="delete"
-                          onClick={() => handleDeleteConfirm(doc.id)}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
+                        <Box sx={{ display: "flex" }}>
+                          <IconButton
+                            aria-label="view"
+                            onClick={() => handleViewDocument(doc.id)}
+                            color="primary"
+                            sx={{ mr: 1 }}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                          <IconButton
+                            aria-label="delete"
+                            onClick={() => handleDeleteConfirm(doc.id)}
+                            color="error"
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </Box>
                       </TableCell>
                     </TableRow>
                   ))
@@ -312,6 +359,7 @@ const Documents: React.FC = () => {
         </Grid>
       </Grid>
 
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onClose={handleDeleteCancel}>
         <DialogTitle>Confirm Deletion</DialogTitle>
         <DialogContent>
@@ -327,6 +375,13 @@ const Documents: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Document Viewer Dialog */}
+      <DocumentViewer
+        open={viewDialogOpen}
+        documentId={selectedDocumentId}
+        onClose={() => setViewDialogOpen(false)}
+      />
     </Box>
   );
 };

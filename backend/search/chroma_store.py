@@ -4,7 +4,6 @@ ChromaDB vector database integration for document storage and retrieval.
 ChromaDB is an open-source embedding database that can run locally with no additional costs.
 """
 import os
-import json
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.utils import embedding_functions
@@ -83,7 +82,7 @@ def query_documents(
     query_text: str,
     filters: Optional[Dict] = None,
     top_k: int = 5,
-    threshold: float = 0.3
+    threshold: float = None
 ) -> List[Dict]:
     """
     Query the vector database for relevant document chunks.
@@ -97,6 +96,10 @@ def query_documents(
     Returns:
         List of relevant document chunks with similarity scores
     """
+    # If no threshold provided, read from environment
+    if threshold is None:
+        threshold = float(os.getenv("SIMILARITY_THRESHOLD", "0.3"))
+
     collection = initialize_collection()
     
     # Format filters for ChromaDB if provided
@@ -159,24 +162,50 @@ def get_collection_stats() -> Dict:
     Returns:
         Dictionary with collection statistics
     """
-    collection = initialize_collection()
-    
-    # Count unique documents
-    results = collection.get()
-    
-    # Get unique document IDs
-    document_ids = set()
-    if results and "metadatas" in results and results["metadatas"]:
-        for metadata in results["metadatas"]:
-            if metadata and "document_id" in metadata:
-                document_ids.add(metadata["document_id"])
-    
-    return {
-        "document_count": len(document_ids),
-        "total_chunks": collection.count(),
-        "vector_store_size": "Unknown",  # ChromaDB doesn't easily expose size info
-        "avg_query_time": 0.0  # Would need benchmarking
-    }
+    try:
+        collection = initialize_collection()
+        
+        # Count actual documents in the uploads directory instead of relying only on ChromaDB
+        document_count = 0
+        total_size = 0
+        if os.path.exists("uploads") and os.path.isdir("uploads"):
+            for filename in os.listdir("uploads"):
+                file_path = os.path.join("uploads", filename)
+                if os.path.isfile(file_path):
+                    document_count += 1
+                    total_size += os.path.getsize(file_path)
+        
+        # Get chunk count from ChromaDB
+        total_chunks = collection.count() if collection else 0
+        
+        # Estimate vector store size - a rough approximation based on embeddings
+        avg_embedding_size = 4 * 384  # 4 bytes per float * 384 dimensions
+        avg_metadata_size = 200  # Rough estimate for metadata size
+        avg_chunk_text_size = 500  # Rough estimate for text content size
+        estimated_size = total_chunks * (avg_embedding_size + avg_metadata_size + avg_chunk_text_size)
+        
+        # Format size for display
+        if estimated_size < 1024:
+            vector_store_size = f"{estimated_size} bytes"
+        elif estimated_size < 1024 * 1024:
+            vector_store_size = f"{estimated_size / 1024:.2f} KB"
+        else:
+            vector_store_size = f"{estimated_size / (1024 * 1024):.2f} MB"
+        
+        return {
+            "document_count": document_count,
+            "total_chunks": total_chunks,
+            "vector_store_size": vector_store_size,
+            "avg_query_time": 0.2  # Placeholder value, could be benchmarked in a production system
+        }
+    except Exception as e:
+        print(f"Error getting collection stats: {str(e)}")
+        return {
+            "document_count": 0,
+            "total_chunks": 0,
+            "vector_store_size": "Unknown",
+            "avg_query_time": 0.0
+        }
 
 def reset_collection() -> bool:
     """
